@@ -13,6 +13,7 @@ DELETE:
 
 
 :id - only numbers
+
 :domain - with/without schema & with/without port. only http/https
 
 
