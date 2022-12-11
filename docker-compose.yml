@@ -1,0 +1,49 @@
+version: '3.2'
+
+volumes:
+  db:
+    driver: local
+
+services:
+  sheduler:
+    container_name: sheduler
+    image: mcuadros/ofelia:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./init/scheduler/config.ini:/etc/ofelia/config.ini
+    environment:
+      TZ: Europe/Moscow
+
+  app:
+    container_name: app
+    restart: always
+    build:
+        context: .
+        dockerfile: Dockerfile
+    environment:
+      TZ: Europe/Moscow
+    ports:
+      - 3000:3000
+    links:
+      - db
+    depends_on:
+      - db
+
+  db:
+    container_name: db
+    image: postgres:latest
+    restart: always
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./init/db:/docker-entrypoint-initdb.d/
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: db
+      POSTGRES_HOST_AUTH_METHOD: trust
+      APP_DB_USER: sample
+      APP_DB_PASS: samplepassword
+      APP_DB_NAME: sample_db
+      TZ: Europe/Moscow
+    ports:
+      - 5432
